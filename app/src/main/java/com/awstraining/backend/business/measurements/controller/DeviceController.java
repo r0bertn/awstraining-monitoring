@@ -38,6 +38,10 @@ class DeviceController implements DeviceIdApi {
         LOGGER.info("Publishing measurement for device '{}'", deviceId);
         final MeasurementDO measurementDO = fromMeasurement(deviceId, measurement);
         service.saveMeasurement(measurementDO);
+        Counter counter = Counter.builder("publishMeasurements.counter")
+                .tag("method", new Object().getClass().getEnclosingMethod().getName())
+                .register(meterRegistry);
+
         return ResponseEntity.ok(measurement);
     }
     @Override
