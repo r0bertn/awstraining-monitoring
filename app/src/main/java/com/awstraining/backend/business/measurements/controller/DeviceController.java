@@ -9,6 +9,8 @@ import com.awstraining.backend.api.rest.v1.model.Measurement;
 import com.awstraining.backend.api.rest.v1.model.Measurements;
 import com.awstraining.backend.business.measurements.MeasurementDO;
 import com.awstraining.backend.business.measurements.MeasurementService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +25,12 @@ class DeviceController implements DeviceIdApi {
 
     private final MeasurementService service;
 
+    private final MeterRegistry meterRegistry;
+
     @Autowired
-    public DeviceController(final MeasurementService service) {
+    public DeviceController(final MeterRegistry meterRegistry, final MeasurementService service) {
         this.service = service;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -44,7 +49,12 @@ class DeviceController implements DeviceIdApi {
                 .toList();
         final Measurements measurementsResult = new Measurements();
         measurementsResult.measurements(measurements);
-        LOGGER.info("Size of measurements: {}", measurements.size());
+        LOGGER.info("Size of measurements: {}", measurementsResult);
+
+        Counter counter = Counter.builder("retrieveMeasurements.counter")
+                .tag("method", new Object().getClass().getEnclosingMethod().getName())
+                .register(meterRegistry);
+
         return ResponseEntity.ok(measurementsResult);
     }
 
