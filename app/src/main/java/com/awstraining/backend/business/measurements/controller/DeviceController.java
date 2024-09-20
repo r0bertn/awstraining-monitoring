@@ -11,6 +11,7 @@ import com.awstraining.backend.business.measurements.MeasurementDO;
 import com.awstraining.backend.business.measurements.MeasurementService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +39,10 @@ class DeviceController implements DeviceIdApi {
         LOGGER.info("Publishing measurement for device '{}'", deviceId);
         final MeasurementDO measurementDO = fromMeasurement(deviceId, measurement);
         service.saveMeasurement(measurementDO);
-        Counter counter = Counter.builder("publishMeasurements.counter")
-                .tag("method", new Object().getClass().getEnclosingMethod().getName())
-                .register(meterRegistry);
-        counter.increment();
+
+        meterRegistry.counter("publishMeasurements.counter", List.of(
+                Tag.of("method", "publishMeasurements"))).increment();;
+
         return ResponseEntity.ok(measurement);
     }
     @Override
@@ -55,10 +56,9 @@ class DeviceController implements DeviceIdApi {
         measurementsResult.measurements(measurements);
         LOGGER.info("Size of measurements: {}", measurementsResult);
 
-        Counter counter = Counter.builder("retrieveMeasurements.counter")
-                .tag("method", new Object().getClass().getEnclosingMethod().getName())
-                .register(meterRegistry);
-        counter.increment();
+        meterRegistry.counter("retrieveMeasurements.counter", List.of(
+                Tag.of("method", "retrieveMeasurements"))).increment();;
+
         return ResponseEntity.ok(measurementsResult);
     }
 
