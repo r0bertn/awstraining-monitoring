@@ -41,7 +41,7 @@ class DeviceController implements DeviceIdApi {
         Counter counter = Counter.builder("publishMeasurements.counter")
                 .tag("method", new Object().getClass().getEnclosingMethod().getName())
                 .register(meterRegistry);
-
+        counter.increment();
         return ResponseEntity.ok(measurement);
     }
     @Override
@@ -58,7 +58,7 @@ class DeviceController implements DeviceIdApi {
         Counter counter = Counter.builder("retrieveMeasurements.counter")
                 .tag("method", new Object().getClass().getEnclosingMethod().getName())
                 .register(meterRegistry);
-
+        counter.increment();
         return ResponseEntity.ok(measurementsResult);
     }
 
